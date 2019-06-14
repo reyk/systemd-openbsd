@@ -62,7 +62,9 @@ but just make sure that you don't accidentally revert `/sbin/init` to
 the OpenBSD version (e.g. by via `sysupgrade`).
 
 1. Run the machine and watch the reliability features in action.
-2. If the system becomes unusable, check `/systemd-score.txt`.
+2. You can watch the action in syslog under `/var/log/authlog`
+   (or set up remote logging to keep the logs).
+3. If the system becomes unusable, check `/systemd-score.txt`.
 
 The system is unusable if there is enough damage that it fails to
 reboot into multi-user mode.

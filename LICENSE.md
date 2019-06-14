@@ -6,7 +6,7 @@ License
 
 ```c
 /*
- * This file is part of the satirical systemd-init for OpenBSD.
+ * This file is part of the satirical systemd-openbsd.
  *
  * DON'T USE THIS IN PRODUCTION!  DON'T USE IT ON YOUR MACHINE!
  * DON'T TAKE IT SERIOUS!  IT MIGHT DELETE YOUR FILES.
