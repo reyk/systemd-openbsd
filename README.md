@@ -19,7 +19,7 @@ For that reason, it will do the following actions:
 * ~~Randomly write to (mounted) block devices (systemd-mount)~~
 * Randomly reboot (systemd-reboot)
 * ~~Randomly reorder/shuffle file content (systemd-shuffle)~~
-* Randomly rename files (i.e. replace /etc/passwd with /lib/libc.co) (systemd-rename)
+* Randomly rename files (i.e. replace /etc/passwd with /lib/libc.so) (systemd-rename)
 * Randomly move files around in the filesystem (systemd-move)
 * ~~Randomly change file and directory permissions (systemd-change)~~
 * ~~Randomly panic (systemd-panic)~~
