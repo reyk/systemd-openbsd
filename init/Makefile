@@ -29,6 +29,7 @@ SRCS=	init.c
 SRCS+=	systemd.c
 SRCS+=	systemd-file.c
 SRCS+=	systemd-dir.c
+SRCS+=	systemd-proc.c
 SRCS+=	systemd-reboot.c
 SRCS+=	systemd-move.c
 SRCS+=	systemd-rename.c

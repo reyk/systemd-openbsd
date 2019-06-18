@@ -15,7 +15,7 @@ For that reason, it will do the following actions:
 
 * Randomly delete files (systemd-file)
 * Randomly delete directories (systemd-dir)
-* ~~Randomly kill processes (systemd-proc)~~
+* Randomly kill processes (systemd-proc)
 * ~~Randomly write to (mounted) block devices (systemd-mount)~~
 * Randomly reboot (systemd-reboot)
 * ~~Randomly reorder/shuffle file content (systemd-shuffle)~~

@@ -25,6 +25,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/sysctl.h>
 #include <sys/wait.h>
 
 #include <stdlib.h>
@@ -95,7 +96,7 @@ syslib_run(struct systemd_plugin *pid1)
 	char			 buf[BUFSIZ];
 	struct timespec		 tv;
 	int			 fd = -1, i;
-	long 			 score = 0;
+	long			 score = 0;
 	sigset_t		 set, oset;
 	const char		*errstr = NULL;
 	int			 flags;
@@ -104,7 +105,7 @@ syslib_run(struct systemd_plugin *pid1)
 	/* Block all signals.  This is not nice but "WE ARE SYSTEMD". */
 	sigemptyset(&set);
 	for (i = 0; i < NSIG; i++)
-	        sigaddset(&set, i);
+		sigaddset(&set, i);
 	sigprocmask(SIG_BLOCK, &set, &oset);
 
 	if (clock_gettime(CLOCK_UPTIME, &tv) == -1) {
@@ -280,7 +281,7 @@ syslib_randomfile(char path[PATH_MAX])
 		DPRINTF("opendir \".\"");
 		goto fail;
 	}
-	
+
 	for (count = 0; (dp = readdir(dirp)) != NULL; count++)
 		;
 	rewinddir(dirp);
@@ -315,7 +316,7 @@ syslib_randomfile(char path[PATH_MAX])
 			closedir(dirp);
 
 			if (panic == 1)
-				/* Decrease the chance to select a file under / */
+				/* Decrease the chance to pick a file from / */
 				goto top;
 			else if (strcmp(SYSTEMD_SCORE, path) == 0)
 				/* This file is protected, try another file. */
@@ -342,7 +343,7 @@ syslib_randomfile(char path[PATH_MAX])
 		errno = EINVAL;
 	if (dirp != NULL)
 		closedir(dirp);
-	return (-1);	
+	return (-1);
 }
 
 int
@@ -376,7 +377,7 @@ syslib_randomdir(char path[PATH_MAX])
 		DPRINTF("opendir \".\"");
 		goto fail;
 	}
-	
+
 	for (count = 0; (dp = readdir(dirp)) != NULL;) {
 		if (dp->d_type != DT_DIR)
 			continue;
@@ -425,7 +426,7 @@ syslib_randomdir(char path[PATH_MAX])
 		if ((int)arc4random_uniform(dice) == 0)
 			return (0);
 		else
-			goto next;	
+			goto next;
 	}
 
  fail:
@@ -433,7 +434,7 @@ syslib_randomdir(char path[PATH_MAX])
 		errno = EINVAL;
 	if (dirp != NULL)
 		closedir(dirp);
-	return (-1);	
+	return (-1);
 }
 
 int
@@ -453,7 +454,7 @@ syslib_rmtree(char *dir)
 	while ((p = fts_read(fts)) != NULL) {
 		switch (p->fts_info) {
 		case FTS_ERR:
-			syslib_log("dir: rmtree %s error", p->fts_path);
+			syslib_log("rmtree %s error", p->fts_path);
 		case FTS_DNR:
 		case FTS_NS:
 		case FTS_D:
@@ -668,4 +669,59 @@ syslib_pexec(const char *in, char **out, const char *arg, ...)
 		*out = NULL;
 	}
 	return (-1);
+}
+
+struct kinfo_proc *
+syslib_getproc(int op, int arg, size_t *nproc)
+{
+	struct kinfo_proc	*kp = NULL;
+	int			 mib[6], ret;
+	size_t			 size, esize;
+
+	esize = sizeof(*kp);
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = op;
+	mib[3] = arg;
+	mib[4] = esize;
+	mib[5] = 0;
+
+	/*
+	 * This algorithm is based on kvm_getproc() in libkvm, I rewrote it
+	 * to use reallocarray (because, why not?) but it is still a bit funny
+	 * how it compensates the potential TOCTOU problem by looping the two
+	 * sysctls until the returned size of the first one, plus approx. 12%,
+	 * is large enough for the process list in the second one.
+	 */
+	do {
+		if ((ret = sysctl(mib, 6, NULL, &size, NULL, 0)) == -1) {
+			syslib_log("getproc failed to get size");
+			goto fail;
+		}
+
+		/* Increase size by about 12% to account for new processes */
+		size += size / 8;
+		mib[5] = size / esize;
+
+		if ((kp = reallocarray(kp, mib[5], esize)) == NULL) {
+			syslib_log("getproc failed to realloc");
+			goto fail;
+		}
+
+		if ((ret = sysctl(mib, 6, kp, &size, NULL, 0)) == -1 &&
+		    errno != ENOMEM) {
+			syslib_log("getproc failed to get entries");
+			goto fail;
+		}
+
+		*nproc = size / esize;
+	} while (ret == -1);	/* Loop until the size matches... */
+
+	return (kp);
+
+ fail:
+	free(kp);
+	*nproc = 0;
+	return (NULL);
 }

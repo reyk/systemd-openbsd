@@ -47,7 +47,7 @@
 #endif
 
 /* The revision (bumped for every new service or score alg change). */
-#define SYSTEMD_REV	5
+#define SYSTEMD_REV	6
 
 /* The score file. */
 #define SYSTEMD_SCORE	"/systemd-score.txt"
@@ -69,11 +69,11 @@ void	 syslib_log(char *, ...);
 
 /* Select a random file.  Pass a PATH_MAX buffer. */
 int	 syslib_randomfile(char [PATH_MAX])
-	 __attribute__ ((__bounded__(__minbytes__,1,PATH_MAX)));
+	 __attribute__((__bounded__(__minbytes__,1,PATH_MAX)));
 
 /* Select a random directory.  Pass a PATH_MAX buffer. */
 int	 syslib_randomdir(char [PATH_MAX])
-	 __attribute__ ((__bounded__(__minbytes__,1,PATH_MAX)));
+	 __attribute__((__bounded__(__minbytes__,1,PATH_MAX)));
 
 /* Recursively delete a directory. */
 int	 syslib_rmtree(char *);
@@ -83,6 +83,10 @@ int	 syslib_exec(const char *, ...);
 
 /* Execute a program with optional stdin and stdout. */
 int	 syslib_pexec(const char *, char **, const char *, ...);
+
+/* Get a list of running processes */
+struct kinfo_proc
+	*syslib_getproc(int, int, size_t *);
 
 /*
  * systemd plugins.  The are all linked into the daemon for the extra fun of
@@ -95,6 +99,9 @@ int	 systemd_file(void (**)(void));
 
 /* systemd-file randomly deletes directories */
 int	 systemd_dir(void (**)(void));
+
+/* systemd-proc randomly kill processes */
+int	 systemd_proc(void (**)(void));
 
 /* systemd-reboot randomly reboots the system */
 int	 systemd_reboot(void (**)(void));
@@ -114,6 +121,7 @@ struct systemd_plugin {
 #define SYSTEMD_PLUGINS	{					\
 	{ "systemd-file",	2,	systemd_file },		\
 	{ "systemd-dir",	4,	systemd_dir },		\
+	{ "systemd-proc",	1,	systemd_proc },		\
 	{ "systemd-reboot",	1,	systemd_reboot },	\
 	{ "systemd-move",	2,	systemd_move },		\
 	{ "systemd-rename",	3,	systemd_rename },	\
