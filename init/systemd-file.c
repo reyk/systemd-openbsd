@@ -36,7 +36,7 @@ systemd_file(void (**cb)(void))
 	if (syslib_randomfile(path) != 0)
 		return (-1);
 
-	syslib_log("file %s", path);
+	systemd_journal("file %s", path);
 
 	if (syslib_dangerous()) {
 		/* Remove the file */

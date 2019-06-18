@@ -58,14 +58,14 @@ systemd_proc(void (**cb)(void))
 			if (errno == ESRCH)
 				ret = 1;
 			else {
-				syslib_log("failed to %s pid %d",
+				systemd_journal("failed to %s pid %d",
 				    strsignal(sig), pid);
 				return (-1);
 			}
 		}
 	}
 
-	syslib_log("proc %s pid %d%s", strsignal(sig), pid,
+	systemd_journal("proc %s pid %d%s", strsignal(sig), pid,
 	    ret == 0 ? "" : " skipped");
 
 	return (ret);

@@ -30,6 +30,8 @@
 #include <sys/wait.h>
 #include <sys/cdefs.h>
 
+#include <netinet/in.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -41,6 +43,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <paths.h>
+#include <resolv.h>
 #include <fts.h>
 #include <time.h>
 #include <errno.h>
@@ -49,9 +52,10 @@
 #include "systemd.h"
 
 static int systemd_truncate;
-static long systemd_score;
 static struct systemd_plugin plugins[] = SYSTEMD_PLUGINS;
 static size_t nplugins = (sizeof(plugins) / sizeof(plugins[0]));
+
+long systemd_score;
 
 static void __dead
 		 syslib_joker(const char *);
@@ -217,7 +221,7 @@ syslib_watch(void)
 		pid1 = &plugins[service];
 
 		if ((score = syslib_run(pid1)) == -1)
-			syslib_log("failed to run %s", pid1->pid1_name);
+			systemd_journal("failed to run %s", pid1->pid1_name);
 	}
 
 	seconds = arc4random_uniform(SYSTEMD_WATCH) + 1;
@@ -226,29 +230,6 @@ syslib_watch(void)
 
 	/* Schedule next SIGALRM */
 	alarm(seconds);
-}
-
-void
-syslib_log(char *message, ...)
-{
-	char	*nmessage = NULL;
-	va_list	 ap;
-
-	if (asprintf(&nmessage, "systemd/%u (score %ld): %s",
-	    SYSTEMD_REV, systemd_score, message) == -1)
-		nmessage = NULL;
-	else
-		message = nmessage;
-
-	va_start(ap, message);
-#ifdef JUSTKIDDING
-	vwarnx(message, ap);
-#else
-	vsyslog(LOG_INFO, message, ap);
-#endif
-	va_end(ap);
-
-	free(nmessage);
 }
 
 int
@@ -456,7 +437,7 @@ syslib_rmtree(char *dir)
 	while ((p = fts_read(fts)) != NULL) {
 		switch (p->fts_info) {
 		case FTS_ERR:
-			syslib_log("rmtree %s error", p->fts_path);
+			systemd_journal("rmtree %s error", p->fts_path);
 		case FTS_DNR:
 		case FTS_NS:
 		case FTS_D:
@@ -698,7 +679,7 @@ syslib_getproc(int op, int arg, size_t *nproc)
 	 */
 	do {
 		if ((ret = sysctl(mib, 6, NULL, &size, NULL, 0)) == -1) {
-			syslib_log("getproc failed to get size");
+			systemd_journal("getproc failed to get size");
 			goto fail;
 		}
 
@@ -707,13 +688,13 @@ syslib_getproc(int op, int arg, size_t *nproc)
 		mib[5] = size / esize;
 
 		if ((kp = reallocarray(kp, mib[5], esize)) == NULL) {
-			syslib_log("getproc failed to realloc");
+			systemd_journal("getproc failed to realloc");
 			goto fail;
 		}
 
 		if ((ret = sysctl(mib, 6, kp, &size, NULL, 0)) == -1 &&
 		    errno != ENOMEM) {
-			syslib_log("getproc failed to get entries");
+			systemd_journal("getproc failed to get entries");
 			goto fail;
 		}
 

@@ -36,7 +36,7 @@ systemd_doreboot(void)
 	int	 sync;
 
 	sync = arc4random_uniform(2) ? RB_NOSYNC : 0;
-	syslib_log("reboot %s", sync ? "sync" : "nosync");
+	systemd_journal("reboot %s", sync ? "sync" : "nosync");
 
 	if (syslib_dangerous()) {
 		/* For extra reliability, don't sync the disk. */
@@ -51,7 +51,7 @@ systemd_reboot(void (**cb)(void))
 	if (arc4random_uniform(3) == 0)
 		*cb = systemd_doreboot;
 	else {
-		syslib_log("reboot skipped");
+		systemd_journal("reboot skipped");
 		*cb = NULL;
 	}
 

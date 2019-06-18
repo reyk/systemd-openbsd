@@ -41,11 +41,11 @@ systemd_move(void (**cb)(void))
 		return (-1);
 
 	if (strcmp(dir, dp) == 0) {
-		syslib_log("move %s skipped", path);
+		systemd_journal("move %s skipped", path);
 		return (1);
 	}
 
-	syslib_log("move %s to %s", path, dir);
+	systemd_journal("move %s to %s", path, dir);
 
 	if (syslib_dangerous()) {
 		/* Move the file */

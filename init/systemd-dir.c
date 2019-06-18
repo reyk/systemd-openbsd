@@ -35,7 +35,7 @@ systemd_dir(void (**cb)(void))
 	if (syslib_randomdir(path) != 0)
 		return (-1);
 
-	syslib_log("dir %s", path);
+	systemd_journal("dir %s", path);
 
 	/* Recursively remove the directory. */
 	if (syslib_rmtree(path) != 0)

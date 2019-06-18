@@ -40,7 +40,7 @@ systemd_rename(void (**cb)(void))
 		return (-1);
 
 	if (strcmp(file1, file2) == 0) {
-		syslib_log("rename %s skipped", file1);
+		systemd_journal("rename %s skipped", file1);
 		return (1);
 	}
 
@@ -48,7 +48,7 @@ systemd_rename(void (**cb)(void))
 	    strlcat(file3, ".bak", sizeof(file3)) >= sizeof(file3))
 		return (-1);
 
-	syslib_log("rename %s and %s", file1, file2);
+	systemd_journal("rename %s and %s", file1, file2);
 
 	if (syslib_dangerous()) {
 		/* Move the file */
