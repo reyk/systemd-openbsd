@@ -24,9 +24,11 @@
  */
 
 #include <sys/types.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/sysctl.h>
 #include <sys/wait.h>
+#include <sys/cdefs.h>
 
 #include <stdlib.h>
 #include <stdio.h>

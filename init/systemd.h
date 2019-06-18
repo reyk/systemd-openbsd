@@ -23,9 +23,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdarg.h>
 #include <limits.h>
-#include <err.h>
+#include <stddef.h>
 
 #ifndef SYSTEMD_LIB
 #define SYSTEMD_LIB

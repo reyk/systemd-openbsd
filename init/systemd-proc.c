@@ -26,10 +26,10 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
+#include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
-#include <errno.h>
 
 #include "systemd.h"
 

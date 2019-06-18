@@ -23,12 +23,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/types.h>
-
 #include <string.h>
-#include <unistd.h>
 #include <limits.h>
-#include <libgen.h>
 
 #include "systemd.h"
 
