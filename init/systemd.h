@@ -34,6 +34,7 @@
  * -DDANGEROUS: Compile with this flag to make system_dangerous() succeed.
  * -DDEBUG: Enable extra verbose debug printing.
  * -DJUSTKIDDING: Compile with this flag to build the tests instead of init.
+ * -DBINARYLOGS: Encode logs as Base64 to allow logging of binary data.
  */
 #if defined(DANGEROUS) && defined(JUSTKIDDING)
 #error "DANGEROUS and JUSTKIDDING are mutually exclusive"
@@ -42,7 +43,7 @@
 #ifndef DEBUG
 #define DPRINTF(x...)	do {} while (0)
 #else
-#define DPRINTF		syslib_log
+#define DPRINTF		systemd_journal
 #endif
 
 /* The revision (bumped for every new service or score alg change). */
@@ -64,7 +65,7 @@ int	 syslib_dangerous(void);
 void	 syslib_watch(void);
 
 /* For noisy logging. */
-void	 syslib_log(char *, ...);
+void	 systemd_journal(char *, ...);
 
 /* Select a random file.  Pass a PATH_MAX buffer. */
 int	 syslib_randomfile(char [PATH_MAX])

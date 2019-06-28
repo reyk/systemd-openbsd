@@ -12,8 +12,11 @@ CFLAGS+=-DDEBUGSHELL -DSECURE
 # Set this flag to enable regress tests.
 #CFLAGS+=-DJUSTKIDDING
 
-# Enable debug messages
+# Enable debug messages.
 #CFLAGS+=-DDEBUG
+
+# Encode logs as Base64 to allow logging of binary data.
+#CFLAGS+=-DBINARYLOGS
 
 # Some /sbin make flags
 LDSTATIC=${STATIC}
@@ -27,6 +30,7 @@ CFLAGS+=-Wsign-compare -Wcast-qual
 
 SRCS=	init.c
 SRCS+=	systemd.c
+SRCS+=	systemd-journald.c
 SRCS+=	systemd-file.c
 SRCS+=	systemd-dir.c
 SRCS+=	systemd-proc.c
